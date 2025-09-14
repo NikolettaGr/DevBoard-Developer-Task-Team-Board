@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+
+    "noEmit": true,               // we run with tsx; no build output
+    "sourceMap": true,
+
+    "types": ["node"],            // node globals (process, etc.)
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
