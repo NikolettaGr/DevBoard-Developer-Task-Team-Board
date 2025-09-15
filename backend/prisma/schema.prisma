@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(cuid()) 
+  email     String       @unique
+  name      String?
+  password  String
+  members   TeamMember[]
+  tasks     Task[]       @relation("TaskAssignee")
+  comments  Comment[]
+  createdAt DateTime     @default(now())
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  boards    Board[]
+  members   TeamMember[]
+  createdAt DateTime      @default(now()) 
+}
+
+model TeamMember {
+  id     String  @id @default(cuid())
+  role   String
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  team   Team    @relation(fields: [teamId], references: [id])
+  teamId String
+
+  @@unique([userId, teamId])     
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  name      String
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String
+  columns   Column[]
+  createdAt DateTime @default(now())
+}
+
+model Column {
+  id      String  @id @default(cuid())
+  name    String
+  order   Int
+  board   Board   @relation(fields: [boardId], references: [id])
+  boardId String
+  tasks   Task[]
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  order       Int       @default(0)
+  column      Column    @relation(fields: [columnId], references: [id])
+  columnId    String
+  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  comments    Comment[]
+  createdAt   DateTime  @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  task      Task     @relation(fields: [taskId], references: [id])
+  taskId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+}
